@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: beka_back
+  datasource:
+    url: jdbc:postgresql://localhost:5432/warehouse
+    username: ${db.user}
+    password: ${db.password}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+  data:
+    jdbc:
+      dialect: postgresql
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui-custom.html
+
+
