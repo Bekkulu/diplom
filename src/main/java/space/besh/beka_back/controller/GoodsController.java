@@ -31,7 +31,6 @@ public class GoodsController {
     private final ProductTypeRepository productTypeRepo;
 
 
-
     @GetMapping(produces = "application/json")
     @Operation(summary = "GET", description = "Получение всех продуктов, или по типу продукта, или по названию продукта, или по названию продукта и типу продукта")
     public ResponseEntity<Response> getAllGoods() {
@@ -90,6 +89,23 @@ public class GoodsController {
         }
         log.info("addGoods > saved {}", goods);
         return ResponseEntity.ok(buildSuccessResponse(goods, "saved entity goods"));
+    }
+
+    @RequestMapping(method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+    @Operation(summary = "PATCH", description = "Обновление продукта")
+    public ResponseEntity<Response> updateGoods(@RequestBody Goods goods) {
+        log.info("updateGoods > goods {}", goods);
+        Optional<Goods> byId = goodsRepo.findById(goods.getId());
+        if (byId.isPresent()) {
+            goodsRepo.save(goods);
+            return ResponseEntity.ok(buildSuccessResponse(goods, "updated entity goods"));
+        } else {
+            return ResponseEntity.ok(
+                    new Response()
+                            .setStatus(Status.FAIL)
+                            .setMessage("Couldn't find goods with id " + goods.getId())
+            );
+        }
     }
 
 //    @RequestMapping(method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
