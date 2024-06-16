@@ -1,13 +1,14 @@
 package space.besh.beka_back.entity;
 
-import com.google.gson.Gson;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 @Entity
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
 public class Goods extends BaseEntity {
 
     @Id
@@ -21,8 +22,4 @@ public class Goods extends BaseEntity {
     @JoinColumn(name = "product_type_id")
     private ProductType productType;
 
-    @Override
-    public String toString() {
-        return new Gson().toJson(this);
-    }
 }
