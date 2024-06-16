@@ -1,7 +1,6 @@
 package space.besh.beka_back.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +35,8 @@ public class GoodsController {
 
     @GetMapping(produces = "application/json")
     @Operation(summary = "GET", description = "Получение всех продуктов, или по типу продукта, или по названию продукта, или по названию продукта и типу продукта")
-    public ResponseEntity<Response> getAllGoods(@RequestParam(required = false, name = "type") Long typeId, @RequestParam(required = false) String name) {
-        List<Goods> goods = goodsRepo.findAll(typeId,name);
+    public ResponseEntity<Response> getAllGoods() {
+        List<Goods> goods = goodsRepo.findAll();
         log.info("getAllGoods > returned {}", goods);
         return ResponseEntity.ok(buildSuccessResponse(goods, null));
     }
