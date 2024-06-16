@@ -5,12 +5,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
-
 @Entity
 @Data
 @EqualsAndHashCode
-public class Goods {
+public class Goods extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,11 +16,6 @@ public class Goods {
 
     @Column(nullable = false)
     String name;
-
-    @Column(nullable = false)
-    BigDecimal price;
-
-    Long quantity;
 
     @ManyToOne
     @JoinColumn(name = "product_type_id")
