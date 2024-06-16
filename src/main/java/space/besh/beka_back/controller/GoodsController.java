@@ -6,10 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import space.besh.beka_back.entity.Goods;
-import space.besh.beka_back.entity.GoodsIn;
-import space.besh.beka_back.entity.GoodsOut;
-import space.besh.beka_back.entity.ProductType;
+import space.besh.beka_back.entity.*;
 import space.besh.beka_back.enums.Status;
 import space.besh.beka_back.model.Response;
 import space.besh.beka_back.repos.*;
@@ -36,7 +33,7 @@ public class GoodsController {
     public ResponseEntity<Response> getAllGoods() {
         List<Goods> goods = goodsRepo.findAll();
         log.info("getAllGoods > returned {}", goods);
-        return ResponseEntity.ok(buildSuccessResponse(goods, null));
+        return buildSuccessResponse(goods, null);
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
@@ -45,7 +42,7 @@ public class GoodsController {
         Optional<Goods> goodsById = goodsRepo.findById(id);
         if (goodsById.isPresent()) {
             log.info("getGoods > returned {}", goodsById);
-            return ResponseEntity.ok(buildSuccessResponse(goodsById, null));
+            return buildSuccessResponse(goodsById, null);
         } else {
             log.info("getGoods > returned empty");
             return ResponseEntity.ok(
@@ -88,7 +85,7 @@ public class GoodsController {
             return handleError(e, "Error while saving goods");
         }
         log.info("addGoods > saved {}", goods);
-        return ResponseEntity.ok(buildSuccessResponse(goods, "saved entity goods"));
+        return buildSuccessResponse(goods, "saved entity goods");
     }
 
     @RequestMapping(method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
@@ -98,7 +95,7 @@ public class GoodsController {
         Optional<Goods> byId = goodsRepo.findById(goods.getId());
         if (byId.isPresent()) {
             goodsRepo.save(goods);
-            return ResponseEntity.ok(buildSuccessResponse(goods, "updated entity goods"));
+            return buildSuccessResponse(goods, "updated entity goods");
         } else {
             return ResponseEntity.ok(
                     new Response()
@@ -158,7 +155,7 @@ public class GoodsController {
             if (goodsById.isPresent()) {
                 goodsRepo.delete(goodsById.get());
                 log.info("deleteGoods > deleted entity goods {}", goodsById.get());
-                return ResponseEntity.ok(buildSuccessResponse(goodsById, "deleted entity goods"));
+                return buildSuccessResponse(goodsById, "deleted entity goods");
             } else {
                 log.info("Couldn't find goods with id {}", id);
                 return handleError(new EntityNotFoundException(), "Couldn't find goods with id " + id);
@@ -183,11 +180,57 @@ public class GoodsController {
         return ResponseEntity.ok(new Response(goodsOutList));
     }
 
-    private Response buildSuccessResponse(Object data, String message) {
-        return new Response()
+    @PostMapping("/in")
+    public ResponseEntity<Response> createGoodsIn(@RequestBody GoodsInModel goodsIn) {
+        Optional<Goods> byId = goodsRepo.findById(goodsIn.getProductId());
+        Optional<Producer> producerById = producerRepository.findById(goodsIn.getProducerId());
+        if (byId.isPresent()) {
+            if (producerById.isPresent()) {
+                GoodsIn goodsToSave = new GoodsIn()
+                        .setId(goodsIn.getId())
+                        .setName(goodsIn.getName())
+                        .setPrice(goodsIn.getPrice())
+                        .setProduct(byId.get())
+                        .setProducer(producerById.get())
+                        .setQuantityIn(goodsIn.getQuantityIn());
+                goodsInRepository.save(goodsToSave);
+                return buildSuccessResponse(goodsToSave, "Successfully saved");
+            } else {
+                return handleError(new EntityNotFoundException(), "producer not found");
+            }
+        } else {
+            return handleError(new EntityNotFoundException(), "no goods by id found");
+        }
+    }
+
+    @PostMapping("/out")
+    public ResponseEntity<Response> createGoodsOut(@RequestBody GoodsOutModel goodsOut) {
+        Optional<Goods> byId = goodsRepo.findById(goodsOut.getProductId());
+        Optional<Consumer> consumerById = consumerRepository.findById(goodsOut.getConsumerId());
+        if (byId.isPresent()) {
+            if (consumerById.isPresent()) {
+                GoodsOut goodsToSave = new GoodsOut()
+                        .setId(goodsOut.getId())
+                        .setName(goodsOut.getName())
+                        .setPrice(goodsOut.getPrice())
+                        .setGood(byId.get())
+                        .setConsumer(consumerById.get())
+                        .setQuantityOut(goodsOut.getQuantityOut());
+                goodsOutRepository.save(goodsToSave);
+                return buildSuccessResponse(goodsToSave, "Successfully saved");
+            } else {
+                return handleError(new EntityNotFoundException(), "producer not found");
+            }
+        } else {
+            return handleError(new EntityNotFoundException(), "no goods by id found");
+        }
+    }
+
+    private ResponseEntity<Response> buildSuccessResponse(Object data, String message) {
+        return ResponseEntity.ok(new Response()
                 .setStatus(Status.SUCCESS)
                 .setData(data)
-                .setMessage(message);
+                .setMessage(message));
     }
 
     private ResponseEntity<Response> handleError(Exception e, String message) {
