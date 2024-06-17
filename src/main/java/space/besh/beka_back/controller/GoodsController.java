@@ -226,6 +226,25 @@ public class GoodsController {
         }
     }
 
+    @PutMapping(value = "/in", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Response> changeGoodsIn(@RequestBody GoodsIn goodsIn) {
+        try {
+            goodsInRepository.save(goodsIn);
+            return buildSuccessResponse(null, "Updated successfully");
+        } catch (Exception e) {
+            return handleError(e, "Some pizdets happened");
+        }
+    }
+    @PutMapping(value = "/out", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Response> changeGoodsIn(@RequestBody GoodsOut goodsOut) {
+        try {
+            goodsOutRepository.save(goodsOut);
+            return buildSuccessResponse(null, "Updated successfully");
+        } catch (Exception e) {
+            return handleError(e, "Some pizdets happened");
+        }
+    }
+
     private ResponseEntity<Response> buildSuccessResponse(Object data, String message) {
         return ResponseEntity.ok(new Response()
                 .setStatus(Status.SUCCESS)
